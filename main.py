@@ -1,3 +1,5 @@
+import os
+
 import discord
 from discord.ext import commands
 import sqlite3
@@ -226,4 +228,4 @@ def image_similarity(url1, url2):
         return 0  # Return 0 in case of any errors
 
 
-bot.run("MTE2MjgxMDgwNzczMDU4MTU4NQ.GPkaf7.8oQFQVQercYusZkVLaogdzTR-KwUmsFufN__Wg")
+bot.run(os.getenv("DISCORD"))
