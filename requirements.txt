@@ -16,4 +16,3 @@ requests==2.31.0
 scipy==1.11.3
 urllib3==2.0.6
 yarl==1.9.2
-discord==<version>
