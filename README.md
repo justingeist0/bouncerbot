@@ -1,22 +1,24 @@
-# bouncerbot
-To host the Bouncer discord bot fork this repo to create your own repository and connect your github account to a service like https://www.heroku.com. 
-
-Searching how to host a python discord bot on heroku will show you how to do it.
-
-Then create a discord bot in the dev portal, just google discord dev portal and follow steps there to create a bot.
-
-Check the member intent checkbox and get the token under the bot tab. Copy it to your clipboard. 
-
-In heroku (or whatever platform you use) go to settings to create a environment variable called DISCORD (exactly as typed there) and set the value to be the token.
-
-Start up the dyna and BAM it'll be online.
-
-You can just google a bunch of questions until you figure it out, but I can make a more detailed guide if you want me to, i'd make a video step by step tutorial how to host it.
-
-If you need help I will see your message on https://www.twitter.com/fantasmadev just hmu 
-
-The link to invite this bot to your server is below if you don't feel like hosting it:
-https://discord.com/api/oauth2/authorize?client_id=1162810807730581585&permissions=2050&scope=bot
-
-
-And if you wanna contribute just make a pull request with features! This could be a much more in depth security bot for discord. I just built the MVP for what I wanted it to do. 
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>BouncerBot: Keeping the Party Safe 🎉</h1>
+    <p>Welcome to BouncerBot, your trusty bouncer at the club, but in Discord form! If you want to ensure a secure and impostor-free environment for your server, you're in the right place. Here's a quick guide on how to set up and deploy BouncerBot.</p>
+    <h3>Getting Started</h3>
+    <ol>
+        <li><strong>Fork This Repo:</strong> Start by forking this repository to create your own copy. You'll be the manager of your exclusive club (Discord server) with BouncerBot at the door.</li>
+        <li><strong>Choose Your Platform:</strong> Connect your GitHub account to a service like <a href="https://www.heroku.com">Heroku</a> to host your bot. If you're not sure how to host a Python Discord bot on Heroku, you can easily find guides online.</li>
+        <li><strong>Create a Discord Bot:</strong> Head over to the <a href="https://discord.com/developers/applications">Discord Developer Portal</a> and create a bot. Follow the simple steps provided in the portal to set up your very own virtual bouncer.</li>
+        <li><strong>Enable Member Intent:</strong> In your bot settings, make sure to check the "Server Members Intent" checkbox. This enables your bot to keep an eye on new and existing members.</li>
+        <li><strong>Get That Token:</strong> Under the bot tab, you'll find the magic key, your bot token. Copy it to your clipboard – you'll need this to give your bouncer its orders.</li>
+        <li><strong>Set up Environment Variables:</strong> In your chosen hosting platform (e.g., Heroku), navigate to the settings and create an environment variable named "DISCORD" (exactly as typed here). Paste your bot token as the value.</li>
+        <li><strong>Fire Up the Dyna:</strong> Start up your bot, and BAM, it'll be online, guarding your server's virtual doors.</li>
+    </ol>
+    <h3>Need Help?</h3>
+    <p>If you run into any hurdles, don't hesitate to reach out. You can find me on <a href="https://www.twitter.com/fantasmadev">Twitter</a>. Just shoot me a message, and I'll be there to help you get the party going.</p>
+    <h3>No Time to Host?</h3>
+    <p>If hosting your own bouncer seems like a bit too much work, no worries! You can invite BouncerBot to your server by simply clicking <a href="https://discord.com/api/oauth2/authorize?client_id=1162810807730581585&permissions=2050&scope=bot">here</a>.</p>
+    <h3>Get Involved</h3>
+    <p>If you're passionate about security and want to make this bot even more robust, feel free to contribute. Just create a pull request with new features or improvements. Let's make this bouncer the best in the game! 🚀🛡️</p>
+    <p>Remember, with BouncerBot at the helm, your Discord party will be nothing but smooth sailing. So, let's get the music playing, the drinks flowing, and the fun rolling!</p>
+</body>
+</html>
