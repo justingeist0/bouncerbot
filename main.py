@@ -247,6 +247,9 @@ def get_guild_object(guild_id):
         print("Returning cached guild object.")
         return cache[guild_id]
 
+    guild_info = bot.get_guild(guild_id)
+    print(f"Guild not in cache: {guild_info.name} {guild_info.id}")
+
     # If not in cache, fetch from MongoDB
     guild_document = server_collection.find_one({"guild_id": guild_id})
 
