@@ -190,7 +190,7 @@ async def kick_if_scammer(guild_id, user_id):
 
         is_dirty_scammer = image_similarity(admin_avatar, user_avatar) > .8
 
-        if not is_dirty_scammer and discord_user.avatar.url != user_avatar.url:
+        if not is_dirty_scammer and discord_user.avatar != user_avatar:
             is_dirty_scammer = image_similarity(admin_avatar, discord_user.avatar) > .8
 
         if is_dirty_scammer:
