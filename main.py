@@ -381,7 +381,8 @@ def image_similarity(url1, url2):
 
         # Calculate the similarity as a percentage
         similarity = 1.0 - (hamming_distance / 64.0)  # 64 is the max hamming distance for an average hash
-        print(similarity)
+        if similarity > .8:
+            print("80% match", url1, url2)
         return similarity
     except Exception as e:
         print(f"Error: {str(e)}")
