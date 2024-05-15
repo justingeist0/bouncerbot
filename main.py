@@ -103,15 +103,19 @@ async def scan_server(ctx):
         return
     await ctx.message.reply("Starting scan... This may take a while, I'll update you when I'm done.")
 
-    guild = await bot.fetch_guild(ctx.guild.id)
+    try:
+        guild = await bot.fetch_guild(ctx.guild.id)
 
-    # Fetch all members
-    async for member in guild.fetch_members(limit=None):
-        # await ctx.message.reply(f"looking at <@!{member.id}>")
-        if not member.bot:
-            await kick_if_scammer(guild.id, member.id)
+        # Fetch all members
+        async for member in guild.fetch_members(limit=None):
+            # await ctx.message.reply(f"looking at <@!{member.id}>")
+            if not member.bot:
+                await kick_if_scammer(guild.id, member.id)
 
-    await ctx.message.reply("Scanning complete.")
+        await ctx.message.reply("Scanning complete.")
+    except Exception as e:
+        print(f"error scanning {e}")
+        ctx.message.reply(f"Error scanning probably got rate limited by discord. {e}")
 
 
 @bot.command(name="bouncer")
@@ -212,7 +216,7 @@ async def on_user_kicked(user, admin_user, guild_id):
     if updates_channel is None:
         await admin_user.send(f"Just kicked someone who was trying to impersonate you <@!{user.id}> in your server. PS type !bouncerposthere in a channel to route these messages over there and I wont DM you then.")
 
-    await user.send(f"You were banned from the server because you look like a scammer. Stop scamming people you heartless fool. Do something else with your life. If you can scam people you have the skills to do so much more. PS. I know where you live keep it up and bad things will happen.")
+    # await user.send(f"You were banned from the server because you look like a scammer. Stop scamming people you heartless fool. Do something else with your life. If you can scam people you have the skills to do so much more. PS. I know where you live keep it up and bad things will happen.")
 
     try:
         if updates_channel != 1240301259223863408:
@@ -339,6 +343,12 @@ def add_user_guild_entry(guild_id, user_id):
 
 def similar(a, b):
     return SequenceMatcher(None, a.lower(), b.lower()).ratio() >= 0.5
+
+
+image_cache = {}
+
+
+# def get_image():
 
 
 def image_similarity(url1, url2):
