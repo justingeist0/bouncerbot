@@ -42,7 +42,10 @@ async def on_member_update(before, after):
 async def bouncer_add(ctx, target: str = None):
     if await ignore_user(ctx):
         return
-    if target and len(ctx.message.mentions) > 0:
+    mentions = ctx.message.mentions
+    if len(mentions) == 0:
+        return await ctx.message.reply(f"You need to @ Someone. Pro-tip, you can at yourself by typing <?!{ctx.message.author.id}")
+    if target and len() > 0:
         user = ctx.message.mentions[0]
     else:
         user = ctx.message.author
@@ -133,9 +136,9 @@ async def bouncer_list_commands(ctx):
 
 @bot.command(name="bouncerbowdowntojustin")
 async def justins_command(ctx):
-    if ctx.message.author.id != 1007458938276556870:
-        ctx.message.reply("You are not my creator. Move along.")
-    await ctx.message.reply("Hello my creator and owner of https://fantasma.dev\n\nI see you are here to help this server set me up properly.\n\nWhoever is an admin message that guy I'm replying to. He'll help you set me up to auto-ban any scumbag scammers who are impersonating people.")
+    if ctx.message.author.id == 1007458938276556870:
+        return await ctx.message.reply("Hello my creator and owner of https://fantasma.dev\n\nI see you are here to help this server set me up properly.\n\nWhoever is an admin message that guy I'm replying to. \n\nHe'll help you set me up to auto-ban any scumbag scammers who are impersonating people and prevent scams.")
+    await ctx.message.reply("You are not my creator. This command only works for him. Move along.")
 
 
 @bot.command(name="bouncerposthere")
