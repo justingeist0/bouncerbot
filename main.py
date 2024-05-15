@@ -131,11 +131,12 @@ async def bouncer_list_commands(ctx):
                    "I'm a bot, for further support hit up my creator, <@!1007458938276556870>")
 
 
-@bot.command(name="bouncercreatorcommand")
+@bot.command(name="bouncerbowdowntojustin")
 async def justins_command(ctx):
     if ctx.message.author.id != 1007458938276556870:
         ctx.message.reply("You are not my creator. Move along.")
-    ctx.message.reply("Hello my creator and owner of https://fantasma.dev\n\nI see you are here to help this server set me up properly.\n\nWhoever is an admin message that guy I'm replying to. He'll help you set me up to auto-ban any scumbag scammers who are impersonating people.")
+    await ctx.message.reply("Hello my creator and owner of https://fantasma.dev\n\nI see you are here to help this server set me up properly.\n\nWhoever is an admin message that guy I'm replying to. He'll help you set me up to auto-ban any scumbag scammers who are impersonating people.")
+
 
 @bot.command(name="bouncerposthere")
 async def bouncer_post_here(ctx):
