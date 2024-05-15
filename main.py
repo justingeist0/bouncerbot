@@ -194,7 +194,7 @@ async def kick_if_scammer(guild_id, user_id):
             is_dirty_scammer = image_similarity(admin_avatar, discord_user.avatar) > .8
 
         if is_dirty_scammer:
-            print("found someone to kick", user.id, user.name)
+            print("found someone to kick", user.id, user.name, " impersonating:", admin_user.name)
             # await user.kick()
             save_scammer(user)
             await on_user_kicked(user, admin_user, guild_id)
@@ -348,17 +348,24 @@ def similar(a, b):
 image_cache = {}
 
 
-# def get_image():
+def get_image(url):
+    if url in image_cache:
+        print('got image from cache')
+        return image_cache[url]
+    response = requests.get(url)
+    image_cache[url] = response
+    return response
 
 
 def image_similarity(url1, url2):
     try:
         # Download the images from the URLs
-        response1 = requests.get(url1)
+        response1 = get_image(url1)
         response2 = requests.get(url2)
 
         # Check if the responses are successful
         if response1.status_code != 200 or response2.status_code != 200:
+            print("Failed to fetch image look into this.")
             return 0  # Return 0 for unsuccessful downloads
 
         # Open the downloaded images with PIL
