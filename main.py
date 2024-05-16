@@ -223,6 +223,8 @@ async def on_user_kicked(user, admin_user, guild_id, similarity):
     if updates_channel is not None:
         channel = bot.get_channel(updates_channel)
         if isinstance(channel, discord.TextChannel):
+            if similarity >= 0.9:
+                await channel.send(get_kick_message(user.id))
             if similarity >= 1.0:
                 await channel.send(f"Banned <@!{user.id}>. {convert_to_percentage(similarity)} similiar profile picture to <@!{admin_user.id}>.")
             elif similarity >= 0.9:
