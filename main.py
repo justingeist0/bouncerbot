@@ -232,13 +232,13 @@ async def on_user_kicked(user, admin_user, guild_id, similarity, error):
             if similarity >= 0.9:
                 await channel.send(get_kick_message(user.id))
             if error:
-                await channel.send(f"Hey I tried to ban or kick this guy but don't have the permissions to. {error}")
-            if similarity >= 1.0:
-                await channel.send(f"Banned <@!{user.id}>. {convert_to_percentage(similarity)} similiar profile picture to <@!{admin_user.id}>.")
+                await channel.send(f"{convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>. Hey I tried to ban or kick this guy but don't have the permissions to. {error}")
+            elif similarity >= 1.0:
+                await channel.send(f"Banned <@!{user.id}>. {convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>.")
             elif similarity >= 0.9:
-                await channel.send(f"Kicked <@!{user.id}>. {convert_to_percentage(similarity)} similiar profile picture to <@!{admin_user.id}>.")
+                await channel.send(f"Kicked <@!{user.id}>. {convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>.")
             else:
-                await admin_user.send(f"@everyone <@!{user.id}> has a {convert_to_percentage(similarity)} similiar profile picture to <@!{admin_user.id}>. Decide if you want to ban that member.")
+                await admin_user.send(f"@everyone <@!{user.id}> has a {convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>. Decide if you want to ban that member.")
         else:
             await admin_user.send(f"Kicked someone <@!{user.id}>, but the text channel no longer exists. Type !bouncerposthere in another channel to reroute this there.")
     else:
