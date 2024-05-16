@@ -129,14 +129,15 @@ async def bouncer_list_commands(ctx):
                    "!bouncerlist - List the current users members can't share a profile picture with. \n\n"
                    "!bouncerposthere - Post the updates of the impersonators I kick in the channel this is typed in.\n\n"
                    "!bouncercheck - I'll \"check everyone's IDs\" and kick the people with fake ones. \n\n"
-                   "I'm a bot, for further support hit up my creator, <@!1007458938276556870>")
+                   "I'm a bot, if you haven't yet join this for further help preventing scams:\n https://discord.com/invite/mukMsFsS6R")
 
 
-@bot.command(name="bouncerbowdowntojustin")
+@bot.command(name="bouncerwhoami")
 async def justins_command(ctx):
     if ctx.message.author.id == 1007458938276556870:
-        return await ctx.message.reply("Hello my creator and owner of https://fantasma.dev\n\nI see you are here to help this server set me up properly.\n\nWhoever is an admin message that guy I'm replying to. \n\nHe'll help you set me up to auto-ban any scumbag scammers who are impersonating people and prevent scams.")
-    await ctx.message.reply("You are not my creator. This command only works for him. Move along.")
+        await ctx.message.reply("Hello my creator and real owner of https://fantasma.dev as I can see by your user id,\n\n He is here to help this server prevent scams and is indeed a real person.")
+        return
+    await ctx.message.reply("You are not my creator. This command is only for him. Move along.")
 
 
 @bot.command(name="bouncerposthere")
@@ -208,7 +209,7 @@ async def kick_if_scammer(guild_id, user_id):
 
         if similarity > .9:
             if similarity >= 1.0:
-                await user.ban(reason="Impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
+                await user.kick(reason="Impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
             else:
                 await user.kick(reason="At least 85% sure impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
             save_scammer(user)
