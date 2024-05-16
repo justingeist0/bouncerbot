@@ -95,7 +95,7 @@ async def list_blockers(ctx):
 async def list_blockers(ctx):
     if await ignore_user(ctx):
         return
-    await on_user_kicked(ctx.message.author, ctx.message.author, ctx.guild.id)
+    await on_user_kicked(ctx.message.author, ctx.message.author, ctx.guild.id, None)
 
 
 @bot.command(name="bouncercheck")
@@ -219,7 +219,7 @@ async def kick_if_scammer(guild_id, user_id):
         except Exception as e:
             await on_user_kicked(user, admin_user, guild_id, similarity, e)
             break
-        await on_user_kicked(user, admin_user, guild_id, similarity)
+        await on_user_kicked(user, admin_user, guild_id, similarity, None)
         break
 
 
