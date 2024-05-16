@@ -223,7 +223,7 @@ async def kick_if_scammer(guild_id, user_id):
         return
     try:
         if max_similarity >= .97:
-            if max_similarity >= 1.1:
+            if max_similarity >= 1.0:
                 await user.ban(reason="100% chance impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
             else:
                 await user.kick(reason=f"{convert_to_percentage(max_similarity)} sure impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
