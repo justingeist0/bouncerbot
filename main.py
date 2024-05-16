@@ -95,7 +95,7 @@ async def list_blockers(ctx):
 async def list_blockers(ctx):
     if await ignore_user(ctx):
         return
-    await on_user_kicked(ctx.message.author, ctx.message.author, ctx.guild.id, None)
+    await on_user_kicked(ctx.message.author, ctx.message.author, ctx.guild.id)
 
 
 @bot.command(name="bouncercheck")
@@ -219,11 +219,11 @@ async def kick_if_scammer(guild_id, user_id):
         except Exception as e:
             await on_user_kicked(user, admin_user, guild_id, similarity, e)
             break
-        await on_user_kicked(user, admin_user, guild_id, similarity, None)
+        await on_user_kicked(user, admin_user, guild_id, similarity)
         break
 
 
-async def on_user_kicked(user, admin_user, guild_id, similarity, error):
+async def on_user_kicked(user, admin_user, guild_id, similarity, error=None):
     guild = get_guild_object(guild_id)
     updates_channel = guild['channel_id']
     if updates_channel is not None:
@@ -238,7 +238,7 @@ async def on_user_kicked(user, admin_user, guild_id, similarity, error):
             elif similarity >= 0.9:
                 await channel.send(f"Kicked <@!{user.id}>. {convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>.")
             else:
-                await admin_user.send(f"@everyone <@!{user.id}> has a {convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>. Decide if you want to ban that member.")
+                await channel.send(f"@everyone <@!{user.id}> has a {convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>. Decide if you want to ban that member.")
         else:
             await admin_user.send(f"Kicked someone <@!{user.id}>, but the text channel no longer exists. Type !bouncerposthere in another channel to reroute this there.")
     else:
@@ -393,11 +393,18 @@ def get_image(url):
     return response
 
 
+def convert_to_smaller(url):
+    if url.endswith("1024"):
+        url = url[:-4] + "240"
+    return url
+
+
 def image_similarity(url1, url2):
     try:
         # Download the images from the URLs
-        response1 = get_image(url1)
-        response2 = requests.get(url2)
+
+        response1 = get_image(convert_to_smaller(url1))
+        response2 = requests.get(convert_to_smaller(url2))
 
         # Check if the responses are successful
         if response1.status_code != 200 or response2.status_code != 200:
