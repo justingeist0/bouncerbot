@@ -395,8 +395,6 @@ def get_image(url):
 
 def convert_to_smaller(url):
     url = str(url)
-    if url.endswith("1024"):
-        url = url[:-4] + "240"
     return url
 
 
