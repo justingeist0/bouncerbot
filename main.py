@@ -43,12 +43,10 @@ async def bouncer_add(ctx, target: str = None):
     if await ignore_user(ctx):
         return
     mentions = ctx.message.mentions
-    if len(mentions) == 0:
-        return await ctx.message.reply(f"You need to @ Someone. Pro-tip, you can at yourself by typing <?!{ctx.message.author.id}")
     if target and len() > 0:
         user = ctx.message.mentions[0]
     else:
-        user = ctx.message.author
+        await ctx.message.reply(f"You must @ a member. If you want you can type @ yourself \"<@!{ctx.message.author.id}>\".")
 
     user_id = user.id
     guild_id = ctx.guild.id
@@ -198,43 +196,58 @@ async def kick_if_scammer(guild_id, user_id):
         admin_avatar = admin_user.avatar
         user_avatar = user.avatar
 
-        is_dirty_scammer = image_similarity(admin_avatar, user_avatar) > .8
+        similarity = image_similarity(admin_avatar, user_avatar)
 
-        if not is_dirty_scammer and discord_user.avatar != user_avatar:
-            is_dirty_scammer = image_similarity(admin_avatar, discord_user.avatar) > .8
+        if discord_user.avatar != user_avatar:
+            test = image_similarity(admin_avatar, discord_user.avatar)
+            if test > similarity:
+                similarity = test
 
-        if is_dirty_scammer:
-            print("found someone to kick", user.id, user.name, " impersonating:", admin_user.name)
-            # await user.kick()
+        if similarity < .8:
+            continue
+
+        if similarity > .9:
+            if similarity >= 1.0:
+                await user.ban(reason="Impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
+            else:
+                await user.kick(reason="At least 85% sure impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
             save_scammer(user)
-            await on_user_kicked(user, admin_user, guild_id)
-            break
+        await on_user_kicked(user, admin_user, guild_id, similarity)
+        print("found someone to kick", user.id, user.name, " impersonating:", admin_user.name, similarity)
+        break
 
 
-async def on_user_kicked(user, admin_user, guild_id):
+async def on_user_kicked(user, admin_user, guild_id, similarity):
     guild = get_guild_object(guild_id)
     updates_channel = guild['channel_id']
     if updates_channel is not None:
         channel = bot.get_channel(updates_channel)
         if isinstance(channel, discord.TextChannel):
-            await channel.send(get_kick_message(user.id))
+            if similarity >= 1.0:
+                await channel.send(f"Banned <@!{user.id}>. {convert_to_percentage(similarity)} similiar profile picture to <@!{admin_user.id}>.")
+            elif similarity >= 0.9:
+                await channel.send(f"Kicked <@!{user.id}>. {convert_to_percentage(similarity)} similiar profile picture to <@!{admin_user.id}>.")
+            else:
+                await admin_user.send(f"@everyone <@!{user.id}> has a {convert_to_percentage(similarity)} similiar profile picture to <@!{admin_user.id}>. Decide if you want to ban that member.")
         else:
-            await admin_user.send(f"Kicked someone <@!{user.id}>, but couldn't post update in channel because it's now a voice channel. Type !bouncerposthere in another channel to reroute this there.")
+            await admin_user.send(f"Kicked someone <@!{user.id}>, but the text channel no longer exists. Type !bouncerposthere in another channel to reroute this there.")
     else:
         await admin_user.send(f"Kicked someone <@!{user.id}>, but the text channel no longer exists. Type !bouncerposthere in another channel to reroute this there.")
-
     if updates_channel is None:
         await admin_user.send(f"Just kicked someone who was trying to impersonate you <@!{user.id}> in your server. PS type !bouncerposthere in a channel to route these messages over there and I wont DM you then.")
 
-    # await user.send(f"You were banned from the server because you look like a scammer. Stop scamming people you heartless fool. Do something else with your life. If you can scam people you have the skills to do so much more. PS. I know where you live keep it up and bad things will happen.")
-
     try:
         if updates_channel != 1240301259223863408:
-            await bot.get_channel(1240301259223863408).send(get_kick_message(user.id) + f" server id: {guild_id}")
+            await bot.get_channel(1240301259223863408).send(get_kick_message(user.id) + f" (from id: {guild_id})")
         else:
             print('guild is fantasma.dev')
     except Exception as e:
         print(f"Can't post update to fantasma.dev discord server: {e}")
+
+
+def convert_to_percentage(number):
+    percentage = number * 100
+    return f"{percentage:.0f}%"
 
 
 def save_scammer(user):
