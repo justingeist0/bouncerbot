@@ -131,13 +131,13 @@ async def bouncer_list_commands(ctx):
                    "!bouncerlist - List the current users members can't share a profile picture with. \n\n"
                    "!bouncerposthere - Post the updates of the impersonators I kick in the channel this is typed in.\n\n"
                    "!bouncercheck - I'll \"check everyone's IDs\" and kick the people with fake ones. \n\n"
-                   "I'm a bot, if you haven't yet join this for further help preventing scams:\n https://discord.com/invite/mukMsFsS6R")
+                   "I'm a bot, if you haven't yet click my name and join the server for further help preventing scams.")
 
 
 @bot.command(name="bouncerwhoami")
 async def justins_command(ctx):
     if ctx.message.author.id == 1007458938276556870:
-        await ctx.message.reply("Hello my creator and real owner of https://fantasma.dev as I can see by your user id,\n\n He is here to help this server prevent scams and is indeed a real person.")
+        await ctx.message.reply("Hello my creator and real owner of https://fantasma.dev as I can see by your user id,\n\n He is here to help this server prevent scams and is the real deal.")
         return
     await ctx.message.reply("You are not my creator. This command is only for him. Move along.")
 
@@ -219,7 +219,8 @@ async def kick_if_scammer(guild_id, user_id):
 
     if max_similarity > .8:
         print("found someone to kick", user.id, user.name, " impersonating:", max_admin.name, max_similarity)
-
+    else:
+        return
     try:
         if max_similarity > .95:
             if max_similarity >= 1.0:
