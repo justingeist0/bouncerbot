@@ -212,7 +212,7 @@ async def kick_if_scammer(guild_id, user_id):
         try:
             if similarity > .9:
                 if similarity >= 1.0:
-                    await user.ban(reason="Impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
+                    await user.kick(reason="Impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
                 else:
                     await user.kick(reason="At least 85% sure impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
                 save_scammer(user)
@@ -234,7 +234,7 @@ async def on_user_kicked(user, admin_user, guild_id, similarity, error):
             if error:
                 await channel.send(f"{convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>. Hey I tried to ban or kick this guy but don't have the permissions to. {error}")
             elif similarity >= 1.0:
-                await channel.send(f"Banned <@!{user.id}>. {convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>.")
+                await channel.send(f"Kicked <@!{user.id}>. {convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>.")
             elif similarity >= 0.9:
                 await channel.send(f"Kicked <@!{user.id}>. {convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>.")
             else:
