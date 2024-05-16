@@ -207,18 +207,23 @@ async def kick_if_scammer(guild_id, user_id):
         if similarity < .8:
             continue
 
-        if similarity > .9:
-            if similarity >= 1.0:
-                await user.kick(reason="Impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
-            else:
-                await user.kick(reason="At least 85% sure impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
-            save_scammer(user)
-        await on_user_kicked(user, admin_user, guild_id, similarity)
         print("found someone to kick", user.id, user.name, " impersonating:", admin_user.name, similarity)
+
+        try:
+            if similarity > .9:
+                if similarity >= 1.0:
+                    await user.ban(reason="Impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
+                else:
+                    await user.kick(reason="At least 85% sure impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
+                save_scammer(user)
+        except Exception as e:
+            await on_user_kicked(user, admin_user, guild_id, similarity, e)
+            break
+        await on_user_kicked(user, admin_user, guild_id, similarity)
         break
 
 
-async def on_user_kicked(user, admin_user, guild_id, similarity):
+async def on_user_kicked(user, admin_user, guild_id, similarity, error):
     guild = get_guild_object(guild_id)
     updates_channel = guild['channel_id']
     if updates_channel is not None:
@@ -226,6 +231,8 @@ async def on_user_kicked(user, admin_user, guild_id, similarity):
         if isinstance(channel, discord.TextChannel):
             if similarity >= 0.9:
                 await channel.send(get_kick_message(user.id))
+            if error:
+                await channel.send(f"Hey I tried to ban or kick this guy but don't have the permissions to. {error}")
             if similarity >= 1.0:
                 await channel.send(f"Banned <@!{user.id}>. {convert_to_percentage(similarity)} similiar profile picture to <@!{admin_user.id}>.")
             elif similarity >= 0.9:
