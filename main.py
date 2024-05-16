@@ -42,11 +42,13 @@ async def on_member_update(before, after):
 async def bouncer_add(ctx, target: str = None):
     if await ignore_user(ctx):
         return
+
     mentions = ctx.message.mentions
-    if target and len() > 0:
+    if target and len(mentions) > 0:
         user = ctx.message.mentions[0]
     else:
         await ctx.message.reply(f"You must @ a member. If you want you can type @ yourself \"<@!{ctx.message.author.id}>\".")
+        return
 
     user_id = user.id
     guild_id = ctx.guild.id
@@ -95,7 +97,7 @@ async def list_blockers(ctx):
 async def list_blockers(ctx):
     if await ignore_user(ctx):
         return
-    await on_user_kicked(ctx.message.author, ctx.message.author, ctx.guild.id)
+    await on_user_kicked(ctx.message.author, ctx.message.author, ctx.guild.id, 0.0)
 
 
 @bot.command(name="bouncercheck")
@@ -184,6 +186,10 @@ async def kick_if_scammer(guild_id, user_id):
     guild = await bot.fetch_guild(guild_id)
     user = await guild.fetch_member(user_id)
     discord_user = await bot.fetch_user(user_id)
+
+    max_similarity = 0
+    max_admin = None
+
     for u in users:
         admin_user = await guild.fetch_member(u)
 
@@ -192,8 +198,8 @@ async def kick_if_scammer(guild_id, user_id):
         # If nickname not equal we are good to continue
         #if not (similar(discord_user.global_name.lower(), admin_name) or similar(user.nick, admin_name)):
         #    continue
-
         # If avatars are at least 80% similar kick the imposter!
+
         admin_avatar = admin_user.avatar
         user_avatar = user.avatar
 
@@ -204,23 +210,27 @@ async def kick_if_scammer(guild_id, user_id):
             if test > similarity:
                 similarity = test
 
-        if similarity < .8:
-            continue
+        if similarity > max_similarity:
+            max_similarity = similarity
+            max_admin = admin_user
 
-        print("found someone to kick", user.id, user.name, " impersonating:", admin_user.name, similarity)
-
-        try:
-            if similarity > .9:
-                if similarity >= 1.0:
-                    await user.kick(reason="Impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
-                else:
-                    await user.kick(reason="At least 85% sure impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
-                save_scammer(user)
-        except Exception as e:
-            await on_user_kicked(user, admin_user, guild_id, similarity, e)
+        if similarity >= 1.0:
             break
-        await on_user_kicked(user, admin_user, guild_id, similarity)
-        break
+
+    if max_similarity > .8:
+        print("found someone to kick", user.id, user.name, " impersonating:", max_admin.name, max_similarity)
+
+    try:
+        if max_similarity > .95:
+            if max_similarity >= 1.0:
+                await user.ban(reason="100% chance impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
+            else:
+                await user.kick(reason=f"{convert_to_percentage(max_similarity)} sure impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
+            save_scammer(user)
+    except Exception as e:
+        await on_user_kicked(user, max_admin, guild_id, max_similarity, e)
+        return
+    await on_user_kicked(user, max_admin, guild_id, max_similarity)
 
 
 async def on_user_kicked(user, admin_user, guild_id, similarity, error=None):
@@ -229,16 +239,16 @@ async def on_user_kicked(user, admin_user, guild_id, similarity, error=None):
     if updates_channel is not None:
         channel = bot.get_channel(updates_channel)
         if isinstance(channel, discord.TextChannel):
-            if similarity >= 0.9:
+            if similarity >= 0.95:
                 await channel.send(get_kick_message(user.id))
             if error:
                 await channel.send(f"{convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>. Hey I tried to ban or kick this guy but don't have the permissions to. {error}")
             elif similarity >= 1.0:
-                await channel.send(f"Kicked <@!{user.id}>. {convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>.")
-            elif similarity >= 0.9:
+                await channel.send(f"Banned <@!{user.id}>. {convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>.")
+            elif similarity >= 0.95:
                 await channel.send(f"Kicked <@!{user.id}>. {convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>.")
             else:
-                await channel.send(f"@everyone <@!{user.id}> has a {convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>. Decide if you want to ban that member.")
+                await channel.send(f"@everyone <@!{user.id}> has a {convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>. Decide if you want to ban that member for impersonating.")
         else:
             await admin_user.send(f"Kicked someone <@!{user.id}>, but the text channel no longer exists. Type !bouncerposthere in another channel to reroute this there.")
     else:
