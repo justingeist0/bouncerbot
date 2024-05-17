@@ -36,6 +36,8 @@ async def on_member_join(member):
 
 @bot.event
 async def on_member_update(before, after):
+    if after.bot:
+        return
     await kick_if_scammer(after.guild.id, after.id)
 
 
