@@ -38,6 +38,8 @@ async def on_member_join(member):
 async def on_member_update(before, after):
     if after.bot:
         return
+    print(f"before {before.name} {before.avatar} update {before.guild.name}")
+    print(f"after {after.name} {after.avatar} update {after.guild.name}")
     await kick_if_scammer(after.guild.id, after.id)
 
 
@@ -232,7 +234,7 @@ async def kick_if_scammer(guild_id, user_id):
         if similarity >= 1.0:
             break
 
-    if max_similarity <= .8:
+    if max_similarity <= .90:
         return
 
     print("found someone fishy", user.id, user.name, " impersonating:", max_admin.name, max_similarity)
