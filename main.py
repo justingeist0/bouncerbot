@@ -36,7 +36,6 @@ async def on_member_join(member):
 
 @bot.event
 async def on_member_update(before, after):
-    print(f"member update {after.guild.name}")
     await kick_if_scammer(after.guild.id, after.id)
 
 
@@ -208,7 +207,7 @@ async def kick_if_scammer(guild_id, user_id):
 
         if check_if_names_match(admin_user, user):
             max_similarity = 1.0
-            max_admin = admin_avatar
+            max_admin = admin_user
             break
 
         similarity = image_similarity(admin_avatar, user_avatar)
