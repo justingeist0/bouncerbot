@@ -30,7 +30,7 @@ async def on_ready():
 
 @bot.event
 async def on_member_join(member):
-    print(f"member joined {member.guild.name}")
+    print(f"{member.name} {member.avatar} member joined {member.guild.name}")
     await kick_if_scammer(member.guild.id, member.id)
 
 
@@ -189,6 +189,9 @@ async def kick_if_scammer(guild_id, user_id):
         guild = await bot.fetch_guild(guild_id)
 
     user = await guild.fetch_member(user_id)
+    if user.bot:
+        print('bot found, ignoring ', user.name)
+        return
 
     discord_user = bot.get_user(user_id)
     if discord_user is None:
