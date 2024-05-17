@@ -189,9 +189,7 @@ async def kick_if_scammer(guild_id, user_id):
     if guild is None:
         guild = await bot.fetch_guild(guild_id)
 
-    user = guild.get_member(user_id)
-    if user is None:
-        user = await guild.fetch_member(user_id)
+    user = await guild.fetch_member(user_id)
 
     discord_user = bot.get_user(user_id)
     if discord_user is None:
@@ -252,7 +250,7 @@ def check_if_names_match(admin, user):
 
 async def on_user_kicked(user, admin_user, guild_id, similarity, error=None):
     guild = get_guild_object(guild_id)
-    if needs_message_channel(guild):
+    if await needs_message_channel(guild):
         await admin_user.send(f"It's the bouncer. I don't have a channel to post someone was maybe impersonating you <@!{user.id}>. Pick a channel and type \"!bouncerposthere\" so I can post updates there.")
     else:
         if similarity >= 0.97:
