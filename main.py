@@ -182,18 +182,28 @@ async def ignore_user(ctx):
 
 async def kick_if_scammer(guild_id, user_id):
     users = get_user_ids_by_guild_id(guild_id)
-    print(str(users), "user id", user_id)
     if user_id in users:
         return
-    guild = await bot.fetch_guild(guild_id)
-    user = await guild.fetch_member(user_id)
-    discord_user = await bot.fetch_user(user_id)
+
+    guild = bot.get_guild(guild_id)
+    if guild is None:
+        guild = await bot.fetch_guild(guild_id)
+
+    user = guild.get_member(user_id)
+    if user is None:
+        user = await guild.fetch_member(user_id)
+
+    discord_user = bot.get_user(user_id)
+    if discord_user is None:
+        discord_user = await bot.fetch_user(user_id)
 
     max_similarity = 0
     max_admin = None
 
     for u in users:
-        admin_user = await guild.fetch_member(u)
+        admin_user = guild.get_member(u)
+        if admin_user is None:
+            admin_user = await guild.fetch_member(u)
 
         admin_avatar = admin_user.avatar
         user_avatar = user.avatar
@@ -217,10 +227,10 @@ async def kick_if_scammer(guild_id, user_id):
         if similarity >= 1.0:
             break
 
-    if max_similarity > .8:
-        print("found someone to kick", user.id, user.name, " impersonating:", max_admin.name, max_similarity)
-    else:
+    if max_similarity <= .8:
         return
+
+    print("found someone fishy", user.id, user.name, " impersonating:", max_admin.name, max_similarity)
     try:
         if max_similarity >= .97:
             await user.ban(reason=f"{convert_to_percentage(max_similarity)} sure impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
@@ -243,7 +253,7 @@ def check_if_names_match(admin, user):
 async def on_user_kicked(user, admin_user, guild_id, similarity, error=None):
     guild = get_guild_object(guild_id)
     if needs_message_channel(guild):
-        await admin_user.send(f"It's the bouncer. I don't have a channel to post someone was impersonating you <@!{user.id}>. Pick a channel and type \"!bouncerposthere\" so I can post updates there.")
+        await admin_user.send(f"It's the bouncer. I don't have a channel to post someone was maybe impersonating you <@!{user.id}>. Pick a channel and type \"!bouncerposthere\" so I can post updates there.")
     else:
         if similarity >= 0.97:
             await send_guild_message(guild, get_kick_message(user.id))
@@ -304,7 +314,6 @@ async def send_guild_message(guild, message):
 def get_guild_object(guild_id):
     # Check if the guild_id is already in the cache
     if guild_id in cache:
-        print("Returning cached guild object.")
         return cache[guild_id]
 
     guild_info = bot.get_guild(guild_id)
