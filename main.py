@@ -215,6 +215,9 @@ async def kick_if_scammer(guild_id, user_id):
             max_admin = admin_user
             break
 
+        if user_avatar is None:
+            continue
+
         similarity = image_similarity(admin_avatar, user_avatar)
 
         if discord_user.avatar != user_avatar:
