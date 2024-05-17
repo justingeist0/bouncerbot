@@ -193,15 +193,13 @@ async def kick_if_scammer(guild_id, user_id):
     for u in users:
         admin_user = await guild.fetch_member(u)
 
-        #admin_name = admin_user.nick if admin_user.nick is not None else admin_user.name
-        #admin_name = str(admin_name).lower()
-        # If nickname not equal we are good to continue
-        #if not (similar(discord_user.global_name.lower(), admin_name) or similar(user.nick, admin_name)):
-        #    continue
-        # If avatars are at least 80% similar kick the imposter!
-
         admin_avatar = admin_user.avatar
         user_avatar = user.avatar
+
+        if check_if_names_match(admin_user, user):
+            max_similarity = 1.0
+            max_admin = admin_avatar
+            break
 
         similarity = image_similarity(admin_avatar, user_avatar)
 
@@ -223,10 +221,7 @@ async def kick_if_scammer(guild_id, user_id):
         return
     try:
         if max_similarity >= .97:
-            if max_similarity >= 1.0:
-                await user.ban(reason="100% chance impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
-            else:
-                await user.kick(reason=f"{convert_to_percentage(max_similarity)} sure impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
+            await user.ban(reason=f"{convert_to_percentage(max_similarity)} sure impersonating an Admin and most likely trying to scam people by messaging them posing as an admin.")
             save_scammer(user)
     except Exception as e:
         await on_user_kicked(user, max_admin, guild_id, max_similarity, e)
@@ -234,34 +229,33 @@ async def kick_if_scammer(guild_id, user_id):
     await on_user_kicked(user, max_admin, guild_id, max_similarity)
 
 
+def check_if_names_match(admin, user):
+    display = str(admin.display_name).lower().replace(" ", "")
+    match_tests = [str(user.display_name).lower().replace(" ", ""), str(user.name).lower().replace(" ", ""), str(user.global_name).lower().replace(" ", "")]
+    if display in match_tests:
+        print("matched names ", str(match_tests), str(admin.display_name))
+        return True
+    return False
+
+
 async def on_user_kicked(user, admin_user, guild_id, similarity, error=None):
     guild = get_guild_object(guild_id)
-    updates_channel = guild['channel_id']
-    if updates_channel is not None:
-        channel = bot.get_channel(updates_channel)
-        if isinstance(channel, discord.TextChannel):
-            if similarity >= 0.97:
-                await channel.send(get_kick_message(user.id))
-            if error:
-                await channel.send(f"{convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>. Hey I tried to ban or kick this guy but don't have the permissions to. {error}")
-            elif similarity >= 1.0:
-                await channel.send(f"Banned <@!{user.id}>. {convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>.")
-            elif similarity >= 0.97:
-                await channel.send(f"Kicked <@!{user.id}>. {convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>.")
-            else:
-                await channel.send(f"@everyone <@!{user.id}> has a {convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>. Decide if you want to ban that member for impersonating.")
-        else:
-            await admin_user.send(f"Kicked someone <@!{user.id}>, but the text channel no longer exists. Type !bouncerposthere in another channel to reroute this there.")
+    if needs_message_channel(guild):
+        await admin_user.send(f"It's the bouncer. I don't have a channel to post someone was impersonating you <@!{user.id}>. Pick a channel and type \"!bouncerposthere\" so I can post updates there.")
     else:
-        await admin_user.send(f"Kicked someone <@!{user.id}>, but the text channel no longer exists. Type !bouncerposthere in another channel to reroute this there.")
-    if updates_channel is None:
-        await admin_user.send(f"Just kicked someone who was trying to impersonate you <@!{user.id}> in your server. PS type !bouncerposthere in a channel to route these messages over there and I wont DM you then.")
-
-    try:
-        if updates_channel != 1240301259223863408:
-            await bot.get_channel(1240301259223863408).send(get_kick_message(user.id) + f" (from id: {guild_id})")
+        if similarity >= 0.97:
+            await send_guild_message(guild, get_kick_message(user.id))
+        if error:
+            await send_guild_message(guild,
+                f"{convert_to_percentage(similarity)} similar profile to <@!{admin_user.id}>. Hey I tried to ban or kick this guy but don't have the permissions to. {error}")
+        elif similarity >= 0.97:
+            await send_guild_message(guild,
+                f"Banned <@!{user.id}>. {convert_to_percentage(similarity)} similar profile to <@!{admin_user.id}>.")
         else:
-            print('guild is fantasma.dev')
+            await send_guild_message(guild,
+               f"@everyone <@!{user.id}> has a {convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>. Decide if you want to ban that member for impersonating.")
+    try:
+        await bot.get_channel(1240301259223863408).send(get_kick_message(user.id) + f" (from id: {guild_id})")
     except Exception as e:
         print(f"Can't post update to fantasma.dev discord server: {e}")
 
@@ -283,6 +277,26 @@ def save_scammer(user):
         print("User saved successfully.")
     except Exception as e:
         print(f"An error occurred: {e}")
+
+
+async def needs_message_channel(guild):
+    updates_channel = guild['channel_id']
+    if updates_channel is None:
+        return True
+    channel = await bot.fetch_channel(updates_channel)
+    if not isinstance(channel, discord.TextChannel):
+        return True
+    return False
+
+
+async def send_guild_message(guild, message):
+    updates_channel = guild['channel_id']
+    if updates_channel is None:
+        return
+    channel = bot.get_channel(updates_channel)
+    if not isinstance(channel, discord.TextChannel):
+        return
+    await channel.send(message)
 
 
 def get_guild_object(guild_id):
