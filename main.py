@@ -30,11 +30,13 @@ async def on_ready():
 
 @bot.event
 async def on_member_join(member):
+    print(f"member joined {member.guild.name}")
     await kick_if_scammer(member.guild.id, member.id)
 
 
 @bot.event
 async def on_member_update(before, after):
+    print(f"member update {after.guild.name}")
     await kick_if_scammer(after.guild.id, after.id)
 
 
@@ -411,7 +413,6 @@ image_cache = {}
 
 def get_image(url):
     if url in image_cache:
-        print('got image from cache')
         return image_cache[url]
     response = requests.get(url)
     image_cache[url] = response
