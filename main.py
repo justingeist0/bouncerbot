@@ -266,10 +266,10 @@ async def on_user_kicked(user, admin_user, guild_id, similarity, error=None):
             await send_guild_message(guild, get_kick_message(user.id))
         if error:
             await send_guild_message(guild,
-                f"{convert_to_percentage(similarity)} similar profile to <@!{admin_user.id}>. Hey I tried to ban or kick this guy but don't have the permissions to. {error}")
+                f"{convert_to_percentage(similarity)} similar profile to <@!{admin_user.id}>. Hey I tried to ban or kick this guy but don't have the permissions to name: \"{user.name}\" display name: \"{user.display_name}\" profile picture: {str(user.avatar)}. {error}")
         elif similarity >= 0.97:
             await send_guild_message(guild,
-                f"Banned <@!{user.id}>. {convert_to_percentage(similarity)} similar profile to <@!{admin_user.id}>.")
+                f"At time of ban, name: \"{user.name}\" display name: \"{user.display_name}\" profile picture: {str(user.avatar)}. {convert_to_percentage(similarity)} similar profile to <@!{admin_user.id}>.")
         else:
             await send_guild_message(guild,
                f"@everyone <@!{user.id}> has a {convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>. Decide if you want to ban that member for impersonating.")
