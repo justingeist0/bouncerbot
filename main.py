@@ -272,7 +272,7 @@ async def on_user_kicked(user, admin_user, guild_id, similarity, error=None):
                 f"At time of ban, name: \"{user.name}\" display name: \"{user.display_name}\" profile picture: {str(user.avatar)}. {convert_to_percentage(similarity)} similar profile to <@!{admin_user.id}>.")
         else:
             await send_guild_message(guild,
-               f"@everyone <@!{user.id}> has a {convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>. Decide if you want to ban that member for impersonating.")
+               f"<@!{user.id}> has a {convert_to_percentage(similarity)} similar profile picture to <@!{admin_user.id}>. Decide if you want to ban that member for impersonating.")
     try:
         await bot.get_channel(1240301259223863408).send(get_kick_message(user.id) + f" (from id: {guild_id})")
     except Exception as e:
